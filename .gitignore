@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (VERY IMPORTANT)
+Data/Processed/
+
+# Environment
+.env
+*.env
+env/
+venv/
+
+# OS
+Thumbs.db
