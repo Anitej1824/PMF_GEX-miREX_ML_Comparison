@@ -81,26 +81,36 @@ def clean_expression_data(df):
 
 def extract_metadata(file_path):
     """
-    Extract sample-level metadata from GEO series matrix file.
+    Extract sample-level metadata from a GEO series matrix file.
 
-    Parameters:
-        file_path (str): Path to GEO series matrix (.txt.gz)
+    Parameters
+    ----------
+    file_path : str
+        Path to the GEO series matrix file (.txt.gz).
 
-    Returns:
-        pd.DataFrame: Raw metadata (unparsed), samples as rows
+    Returns
+    -------
+    pd.DataFrame
+        Raw metadata dataframe with:
+        - Rows = samples (GSM IDs)
+        - Columns = metadata entries (unparsed)
+        Each cell contains raw metadata strings (e.g., "disease: PMF").
     """
     meta_rows = []
     sample_ids = []
 
     with gzip.open(file_path, 'rt') as f:
         for line in f:
+            # Extract sample IDs
             if line.startswith("!Sample_geo_accession"):
                 sample_ids = line.strip().split("\t")[1:]
 
+            # Extract metadata fields
             if line.startswith("!Sample_characteristics_ch1"):
                 values = line.strip().split("\t")[1:]
                 meta_rows.append(values)
 
+    # Construct dataframe (samples as rows)
     meta = pd.DataFrame(meta_rows).T
     meta.index = [s.strip('"') for s in sample_ids]
 
@@ -108,16 +118,26 @@ def extract_metadata(file_path):
 
 def parse_metadata(meta_df):
     """
-    Convert raw metadata strings into structured columns.
+    Parse and structure raw GEO metadata into clean tabular format.
 
-    Example:
-        "disease: PMF" → disease = PMF
+    Steps performed:
+    - Remove quotation marks from metadata entries
+    - Split key-value pairs (e.g., "disease: PMF")
+    - Construct structured columns from metadata keys
+    - Standardize sample identifiers (remove quotes)
 
-    Parameters:
-        meta_df (pd.DataFrame): Raw metadata
+    Parameters
+    ----------
+    meta_df : pd.DataFrame
+        Raw metadata dataframe from GEO.
 
-    Returns:
-        pd.DataFrame: Parsed metadata
+    Returns
+    -------
+    pd.DataFrame
+        Parsed metadata dataframe with:
+        - Rows = samples (GSM IDs)
+        - Columns = metadata fields (e.g., disease, tissue, etc.)
+        - Values = cleaned metadata values
     """
     parsed_rows = []
 
@@ -128,12 +148,19 @@ def parse_metadata(meta_df):
             if pd.isna(item):
                 continue
 
+            # Remove surrounding quotes
             item = item.strip('"')
 
+            # Split key-value pairs
             if ": " in item:
                 key, value = item.split(": ", 1)
                 row_dict[key] = value
 
         parsed_rows.append(row_dict)
 
-    return pd.DataFrame(parsed_rows, index=meta_df.index)
+    parsed_df = pd.DataFrame(parsed_rows, index=meta_df.index)
+
+    # Standardize sample IDs (remove quotes)
+    parsed_df.index = parsed_df.index.str.replace('"', '', regex=False)
+
+    return parsed_df
