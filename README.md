@@ -26,6 +26,7 @@ Binary classification task:
 
 ## Project Structure
 
+```text
 ├── Data/
 │ ├── Raw/ # GEO series matrix files
 │ └── Processed/ # Cleaned and aligned datasets
@@ -44,7 +45,7 @@ Binary classification task:
 │ └── Data_Preprocessing.py
 │
 └── README.md
-
+```
 
 ---
 
