@@ -116,10 +116,3 @@ Binary classification task:
 ![CM miRNA](Results/Plots/confusion_matrix_mirna_rf.png)
 
 ---
-
-## ▶️ How to Run
-
-### 1. Clone the repository
-```bash
-git clone <https://github.com/Anitej1824/PMF_GEX-miREX_ML_Comparison>
-cd <PMF_GEX-miREX_ML_Comparison>
