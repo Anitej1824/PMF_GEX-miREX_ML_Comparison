@@ -1,114 +1,92 @@
-# PMF Molecular ML
+# PMF Molecular Classification
 
-A reproducible machine-learning workflow for classifying **Primary Myelofibrosis (PMF)** versus control samples using gene-expression and miRNA-expression data.
+A reproducible machine-learning workflow for classifying **Primary Myelofibrosis (PMF)** versus control samples using high-dimensional gene-expression and miRNA-expression data.
 
-The project uses the public GEO dataset **GSE53482** as a practical bioinformatics machine-learning playground. It focuses on the computational challenges of applying supervised learning to high-dimensional molecular data, including metadata extraction, sample alignment, leakage-aware feature selection, cross-validation, model comparison, and out-of-fold evaluation.
+The project uses the GEO dataset **GSE53482** as a practical bioinformatics and machine-learning playground. The primary goal is not biological discovery, biomarker validation, or mechanistic interpretation, but to develop and evaluate a complete machine-learning workflow for molecular data while applying appropriate practices for small-sample, high-dimensional datasets.
 
-This project is intended primarily as a **machine-learning and bioinformatics portfolio project** rather than a biological interpretation study. No attempt is made to identify disease mechanisms, propose biomarkers, or provide clinical conclusions.
+The project focuses on **data preprocessing, metadata construction, leakage-aware feature selection, cross-validation, model comparison, out-of-fold evaluation, and model interpretation**.
 
 ---
 
 ## Features
 
-* Processing of GEO gene-expression and miRNA-expression series matrix files
-* Sample-level metadata extraction and parsing
+* GEO series-matrix metadata extraction and parsing
+* Gene-expression and miRNA-expression preprocessing
+* Sample-level metadata validation and alignment
 * Construction of binary PMF/control classification labels
-* Expression and metadata sample alignment validation
-* Inspection of potential biological and technical confounding
+* Diagnostic assessment of potential biological and technical confounding
 * High-dimensional feature selection using `SelectKBest`
-* Feature selection performed within cross-validation pipelines to prevent information leakage
+* Feature selection performed within cross-validation pipelines
 * Stratified 5-fold cross-validation
 * Logistic Regression classification
 * Random Forest classification
-* Comparison of multiple feature-set sizes
-* Selection of parsimonious feature-set sizes based on model performance
-* Fold-level feature-importance extraction
+* Model comparison across multiple feature-set sizes
 * Out-of-fold probability and class predictions
-* ROC-AUC comparison
+* ROC-AUC and classification metric evaluation
 * ROC curve visualization
 * Confusion matrix visualization
-* Reproducible tabular model results
-* Notebook-based analysis workflow
+* Fold-level feature-importance extraction
+* Feature-selection stability analysis
+* Comparison of feature stability between modelling approaches
+* Reproducible results and visualization outputs
 
 ---
 
 ## Analysis Overview
 
-The project follows this structure:
+The project follows a five-stage analysis workflow:
 
 ```text
 GEO Series Matrix Files
-        │
-        ▼
-Notebook 01
-Data preprocessing
-        │
-        ├──────────────────────┐
-        │                      │
-        ▼                      ▼
-Gene expression           miRNA expression
-        │                      │
-        └──────────┬───────────┘
-                   │
-                   ▼
-Notebook 02
-Metadata processing
-& label construction
-                   │
-                   ▼
-Aligned expression
-+ PMF/control labels
-                   │
-                   ▼
-Notebook 03
-Model training
-& comparison
-                   │
-          ┌────────┴────────┐
-          ▼                 ▼
-     Logistic           Random
-     Regression          Forest
-          │                 │
-          └────────┬────────┘
-                   ▼
-        Cross-validation
-        & feature selection
-                   │
-                   ▼
-          Out-of-fold
-           predictions
-                   │
-                   ▼
-Notebook 04
-Model evaluation
-& visualization
-                   │
-          ┌────────┴────────┐
-          ▼                 ▼
-       ROC curves       Confusion
-                         matrices
+          │
+          ▼
+01 - Expression Preprocessing
+          │
+          ▼
+Cleaned Gene / miRNA Expression
+          │
+          ▼
+02 - Metadata Processing
+          │
+          ├── Sample metadata extraction
+          ├── PMF / Control labels
+          ├── Confounding diagnostics
+          └── Sample alignment
+          │
+          ▼
+Aligned Expression + Metadata
+          │
+          ▼
+03 - Model Training & Comparison
+          │
+          ├── Stratified 5-fold CV
+          ├── Fold-level feature selection
+          ├── Logistic Regression
+          └── Random Forest
+          │
+          ├───────────────┐
+          ▼               ▼
+04 - Model Evaluation   05 - Model Interpretation
+          │               │
+          ├── ROC curves  ├── Feature stability
+          ├── Confusion   ├── Importance
+          │   matrices    └── Model agreement
+          │
+          └───────────────┬───────────────
+                          ▼
+                 Reproducible Results
 ```
-
-The notebooks separate **data preparation**, **metadata construction**, **model development**, and **model evaluation** so that the analysis stages remain explicit and reproducible.
 
 ---
 
 ## Project Structure
 
 ```text
-PMF-Molecular-ML/
+PMF-Molecular-Classification/
+│
 ├── Data/
-│   ├── Raw/
-│   │   ├── GSE53482-GPL13667_series_matrix.txt.gz
-│   │   └── GSE53482-GPL14613_series_matrix.txt.gz
-│   │
-│   └── Processed/
-│       ├── gene_expression.csv
-│       ├── mirna_expression.csv
-│       ├── gene_expression_aligned.csv
-│       ├── mirna_expression_aligned.csv
-│       ├── gene_metadata.csv
-│       └── mirna_metadata.csv
+│   ├── Raw/                              # Original GEO series matrix files
+│   └── Processed/                        # Cleaned and aligned expression data
 │
 ├── Results/
 │   ├── Tables/
@@ -128,36 +106,55 @@ PMF-Molecular-ML/
 │       ├── cross_validation_roc_auc.png
 │       ├── roc_curves_oof.png
 │       ├── confusion_matrix_LogReg_Gene.png
-│       └── confusion_matrix_LogReg_miRNA.png
+│       ├── confusion_matrix_LogReg_miRNA.png
+│       ├── top_features_LogReg_Gene.png
+│       ├── top_features_RF_Gene.png
+│       ├── top_features_LogReg_miRNA.png
+│       └── top_features_RF_miRNA.png
 │
 ├── Src/
+│   ├── __init__.py
 │   ├── Data_Preprocessing.py
 │   └── Model_Utility.py
 │
 ├── Notebooks/
-│   ├── 01_Data_Loading.ipynb
-│   ├── 02_Metadata_Processing_&_Label_Construction.ipynb
-│   ├── 03_Model_Training_&_Comparison.ipynb
-│   ├── 04_Model_Evaluation_&_Visualization.ipynb
-│   └── 05_Model_Interpretation.ipynb
+│   ├── 01 - Data Loading
+│   ├── 02 - Metadata Processing & Label Construction
+│   ├── 03 - Model Training & Comparison
+│   ├── 04 - Model Evaluation & Visualization
+│   └── 05 - Model Interpretation
 │
 ├── .gitignore
 ├── README.md
-└── environment.yml
+└── environment.yaml
 ```
 
 ---
 
 ## Study Context
 
-This project uses the publicly available GEO dataset **GSE53482**.
+This project uses **GSE53482**, a GEO dataset containing molecular measurements from samples associated with Primary Myelofibrosis (PMF) and control groups.
 
-The dataset contains molecular expression measurements from samples associated with **Primary Myelofibrosis (PMF)** and control groups. Two molecular data types are considered:
+Two molecular data types are analysed:
 
 * Gene expression
 * miRNA expression
 
-The analysis treats the biological labels primarily as a supervised-learning target rather than attempting to reproduce the biological conclusions of the original study.
+The classification task is defined as:
+
+```text
+PMF      → 1
+Control  → 0
+```
+
+The dataset contains **73 samples**, consisting of:
+
+* 42 PMF samples
+* 31 control samples
+
+The gene-expression dataset contains **49,386 features**, while the miRNA dataset contains **20,212 features**.
+
+This produces a highly dimensional setting in which the number of molecular features is substantially larger than the number of available samples.
 
 **Dataset:** [GSE53482](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE53482)
 
@@ -165,25 +162,26 @@ The analysis treats the biological labels primarily as a supervised-learning tar
 
 ## Project Goal
 
-The main goal is to practice and demonstrate a complete machine-learning workflow using real high-dimensional bioinformatics data.
+The goal of this project is to practice and demonstrate a complete machine-learning workflow for high-dimensional molecular data.
 
-Rather than focusing on biological discovery, the project asks a computational question:
+Rather than attempting to reproduce a biological discovery or identify clinically validated biomarkers, the project focuses on computational methodology.
 
-> **How well can standard supervised machine-learning models distinguish PMF samples from controls using gene-expression and miRNA-expression profiles?**
+The main questions are:
 
-The project emphasizes the practical problems that arise when machine learning is applied to molecular datasets where:
+1. Can molecular expression profiles distinguish PMF samples from controls within this cohort?
+2. How do Logistic Regression and Random Forest compare?
+3. How does model performance change with the number of selected features?
+4. Can feature selection be performed without information leakage?
+5. Which features are selected consistently across cross-validation folds?
+6. Do different modelling approaches identify overlapping predictive features?
 
-* The number of features is much larger than the number of samples.
-* Samples require careful metadata alignment.
-* Feature selection can easily introduce information leakage.
-* A single train/test split may provide an unstable estimate of performance.
-* Different molecular data types may contain different amounts of predictive signal.
+The resulting project is therefore intended as a **machine-learning and bioinformatics portfolio exercise**, using a real molecular dataset rather than a synthetic dataset.
 
 ---
 
 ## Input Data
 
-Two GEO series matrix files are used as the raw input.
+The analysis uses the original GEO series matrix files corresponding to the two molecular platforms.
 
 ### Gene Expression
 
@@ -191,7 +189,7 @@ Two GEO series matrix files are used as the raw input.
 Data/Raw/GSE53482-GPL13667_series_matrix.txt.gz
 ```
 
-This file contains the gene-expression measurements and associated GEO sample metadata.
+The gene-expression matrix contains 73 samples and 49,386 processed molecular features.
 
 ### miRNA Expression
 
@@ -199,17 +197,33 @@ This file contains the gene-expression measurements and associated GEO sample me
 Data/Raw/GSE53482-GPL14613_series_matrix.txt.gz
 ```
 
-This file contains the miRNA-expression measurements and associated GEO sample metadata.
+The miRNA matrix contains 73 samples and 20,212 processed molecular features.
 
-The raw files are processed separately because the gene-expression and miRNA platforms contain different molecular feature spaces.
+The raw GEO metadata is extracted directly from the corresponding series matrix files rather than relying on manually constructed sample labels.
 
 ---
 
-## Metadata and Classification Labels
+## Notebook 01 — Expression Data Preprocessing
 
-Sample metadata is extracted directly from the original GEO series matrix files.
+The first notebook prepares the molecular expression datasets for downstream analysis.
 
-The metadata contains information including:
+The preprocessing stage produces cleaned gene-expression and miRNA-expression matrices that can be used consistently throughout the modelling workflow.
+
+The processed datasets are saved under:
+
+```text
+Data/Processed/
+```
+
+The notebook establishes the feature matrices used by the subsequent metadata and machine-learning stages.
+
+---
+
+## Notebook 02 — Metadata Processing & Label Construction
+
+The second notebook extracts sample-level metadata from the original GEO files.
+
+Metadata is parsed into a structured table containing variables such as:
 
 * Supplier
 * Cell type
@@ -217,15 +231,7 @@ The metadata contains information including:
 * JAK2 V617F status
 * Tissue
 
-The original disease categories are:
-
-```text
-PMF
-PB CTR
-BM CTR
-```
-
-For the machine-learning task, these are converted into a binary target:
+The disease categories are converted into a binary classification target:
 
 ```text
 PMF      → 1
@@ -233,63 +239,69 @@ PB CTR   → 0
 BM CTR   → 0
 ```
 
-The resulting dataset contains:
+The resulting class distribution is:
 
-* **42 PMF samples**
-* **31 control samples**
-* **73 samples total**
+```text
+PMF       42
+Control   31
+```
 
-The same classification scheme is applied to both molecular data types.
+### Confounding Diagnostics
 
----
+Potential biological and technical confounders are examined using cross-tabulations against the binary classification label.
 
-## Potential Confounding
-
-The metadata is inspected for characteristics that may be associated with the classification label.
-
-The following variables are examined:
+The analysis examines:
 
 * Supplier
 * Cell type
 * JAK2 V617F status
 * Tissue
 
-These checks reveal substantial differences between PMF and control samples.
+These checks are **diagnostic only**. Samples are not removed or modified based on these observations.
 
-For example, the control samples are associated with the `CTR` cell type while PMF samples are associated with `MPD`. Tissue and JAK2 V617F status also show strongly uneven distributions between the two classes.
+The diagnostics demonstrate that some metadata variables are strongly associated with the classification label. For example, cell type and tissue are not evenly distributed between PMF and control samples.
 
-These observations are important because a classifier may learn **group-associated biological or technical differences** rather than a disease-specific signal.
+This is an important limitation of the dataset because a classifier may exploit group-associated experimental characteristics in addition to disease-associated molecular differences.
 
-No samples are removed or modified on the basis of these observations. The confounding analysis is treated as a diagnostic step and is explicitly retained as a limitation of the machine-learning experiment.
+The project therefore treats these analyses as a modelling limitation rather than attempting to correct the imbalance through arbitrary sample removal.
 
 ---
 
-## Dataset Dimensions
+## Notebook 03 — Model Training & Comparison
 
-The processed expression matrices are highly dimensional relative to the number of samples.
+The third notebook performs model development and cross-validation.
 
-| Dataset          | Samples | Features |
-| ---------------- | ------: | -------: |
-| Gene expression  |      73 |   49,386 |
-| miRNA expression |      73 |   20,212 |
+Because the dataset contains far more features than samples, dimensionality reduction through supervised feature selection is incorporated into the modelling pipeline.
 
-This produces a classic high-dimensional, low-sample-size setting:
+### Models
+
+Two classifiers are compared:
+
+**Logistic Regression**
+
+A linear classifier providing a relatively interpretable baseline for high-dimensional expression data.
+
+**Random Forest**
+
+A nonlinear ensemble classifier capable of modelling interactions and nonlinear relationships between selected features.
+
+### Cross-Validation
+
+Model performance is evaluated using:
 
 ```text
-Features  >>>>>>>>>>>>>>>>>>>>> Samples
+Stratified 5-fold cross-validation
 ```
 
-Directly fitting complex models to the complete feature space would increase the risk of overfitting.
+The stratification preserves the PMF/control class ratio across folds.
 
-For this reason, supervised feature selection is incorporated into the modelling workflow.
+A fixed random seed of `42` is used to make the cross-validation splits reproducible.
 
----
+### Leakage-Aware Feature Selection
 
-## Feature Selection
+Feature selection is performed inside the scikit-learn pipeline.
 
-Feature selection is performed using `SelectKBest` with an ANOVA F-test.
-
-The following feature counts are evaluated:
+Candidate feature-set sizes are:
 
 ```text
 10
@@ -301,498 +313,331 @@ The following feature counts are evaluated:
 1000
 ```
 
-The important methodological detail is that feature selection occurs **inside the scikit-learn pipeline**.
+For each cross-validation fold, feature ranking is calculated using only the training portion of that fold.
 
-Conceptually, each cross-validation fold follows:
+This prevents the validation samples from influencing feature selection.
 
-```text
-Training fold
-     │
-     ▼
-SelectKBest
-     │
-     ▼
-Selected features
-     │
-     ▼
-Classifier
-     │
-     ▼
-Validation fold
-```
+This is particularly important in this project because the number of molecular features is much larger than the number of samples.
 
-The validation fold is therefore not used to calculate feature rankings.
+### Feature-Set Selection
 
-This prevents the feature-selection step from leaking information from the validation data into the model.
+The preferred feature count is selected independently for each dataset/model combination.
 
----
-
-## Machine-Learning Models
-
-Two classifiers are evaluated.
-
-### Logistic Regression
-
-Logistic Regression provides a relatively simple linear baseline for high-dimensional expression data.
-
-The model is combined with feature selection and scaling in a pipeline.
+Candidate feature counts are considered practically equivalent when they fall within:
 
 ```text
-SelectKBest
-     │
-     ▼
-StandardScaler
-     │
-     ▼
-Logistic Regression
+ROC-AUC tolerance = 0.01
+F1 tolerance      = 0.01
 ```
 
-### Random Forest
+Among equivalent candidates, the smallest feature set is preferred.
 
-Random Forest provides a nonlinear ensemble model that can capture interactions between selected features.
+The selected feature counts are:
 
-The model uses the same leakage-aware feature-selection framework.
-
-```text
-SelectKBest
-     │
-     ▼
-Random Forest
-```
-
-The two models provide complementary modelling approaches rather than assuming that one classifier is universally preferable.
-
----
-
-## Cross-Validation Strategy
-
-Because the dataset contains only 73 samples, a conventional single train/test split would produce a relatively small test set and potentially unstable performance estimates.
-
-The models are therefore evaluated using:
-
-**Stratified 5-fold cross-validation**
-
-```python
-StratifiedKFold(
-    n_splits=5,
-    shuffle=True,
-    random_state=42
-)
-```
-
-Stratification preserves the approximate PMF/control class ratio across the folds.
-
-The same cross-validation strategy is used when evaluating different feature-set sizes and the final selected models.
-
----
-
-## Feature-Set Selection
-
-Feature-set size is selected independently for each combination of:
-
-* Molecular data type
-* Classifier
-
-A candidate feature count is considered practically equivalent to the best-performing configuration when its:
-
-```text
-ROC-AUC
-and
-F1 score
-```
-
-are within `0.01` of the best observed values.
-
-Among these candidates, the smallest feature set is preferred.
-
-This provides a simple parsimony rule:
-
-> If a substantially smaller feature set performs essentially as well as a larger one, prefer the smaller model.
-
-The selected configurations were:
-
-| Dataset | Model               | Selected Features |
+| Dataset | Model               | Selected features |
 | ------- | ------------------- | ----------------: |
 | Gene    | Logistic Regression |                50 |
 | Gene    | Random Forest       |                25 |
-| miRNA   | Logistic Regression |             1,000 |
+| miRNA   | Logistic Regression |              1000 |
 | miRNA   | Random Forest       |               250 |
 
 ---
 
-## Model Performance
+## Cross-Validation Results
 
-The final selected models produced the following cross-validation results:
+The final selected pipelines produced the following cross-validation performance:
 
-| Dataset | Model               | ROC-AUC | Accuracy | Precision | Recall |    F1 |
-| ------- | ------------------- | ------: | -------: | --------: | -----: | ----: |
-| Gene    | Logistic Regression |   1.000 |    1.000 |     1.000 |  1.000 | 1.000 |
-| Gene    | Random Forest       |   1.000 |    1.000 |     1.000 |  1.000 | 1.000 |
-| miRNA   | Logistic Regression |   1.000 |    1.000 |     1.000 |  1.000 | 1.000 |
-| miRNA   | Random Forest       |   0.985 |    0.919 |     0.953 |  0.908 | 0.929 |
+| Dataset | Model               | ROC-AUC | Accuracy | Precision | Recall |    F1 | Features |
+| ------- | ------------------- | ------: | -------: | --------: | -----: | ----: | -------: |
+| Gene    | Logistic Regression |   1.000 |    1.000 |     1.000 |  1.000 | 1.000 |       50 |
+| Gene    | Random Forest       |   1.000 |    1.000 |     1.000 |  1.000 | 1.000 |       25 |
+| miRNA   | Logistic Regression |   1.000 |    1.000 |     1.000 |  1.000 | 1.000 |     1000 |
+| miRNA   | Random Forest       |   0.985 |    0.919 |     0.953 |  0.908 | 0.929 |      250 |
 
-These results indicate that the models can separate the PMF and control samples extremely well within this dataset.
+The gene-expression models achieved perfect cross-validation performance within the available cohort.
 
-However, the results should **not** be interpreted as evidence that these models would perform equally well on independent patient cohorts.
+The miRNA Logistic Regression model also achieved perfect mean performance under the selected feature configuration, while the miRNA Random Forest model showed lower performance and greater fold-to-fold variability.
 
-The combination of:
-
-* only 73 samples,
-* tens of thousands of molecular features,
-* strong metadata differences between groups,
-* supervised feature selection,
-* and evaluation on a single public cohort
-
-creates substantial limitations for claims of generalization.
+These results demonstrate strong predictive separation within the dataset, but they should not be interpreted as evidence of clinical performance or external generalizability.
 
 ---
 
-## Model Evaluation
+## Notebook 04 — Model Evaluation & Visualization
 
-Notebook 04 evaluates the models using both aggregate cross-validation metrics and out-of-fold predictions.
+The fourth notebook evaluates the models using the out-of-fold predictions generated during Notebook 03.
 
-### ROC-AUC Comparison
+Out-of-fold predictions are important because each sample receives a prediction from a model that was not trained on that sample.
 
-The cross-validation ROC-AUC values are summarized with their fold-level variability.
-
-<p align="center">
-  <img src="Results/Plots/cross_validation_roc_auc.png" width="600">
-</p>
+This provides a consistent basis for visual evaluation.
 
 ### ROC Curves
 
-ROC curves are generated using out-of-fold predictions.
+ROC curves are generated from the out-of-fold predicted probabilities for all four model/dataset combinations.
 
-Each sample therefore receives a prediction from a model that did not use that sample during training.
+The resulting visualization compares the ability of each model to discriminate between PMF and control samples.
 
 <p align="center">
-  <img src="Results/Plots/roc_curves_oof.png" width="600">
+  <img src="Results/Plots/roc_curves_oof.png" width="500">
+</p>
+
+### Cross-Validation ROC-AUC
+
+The mean ROC-AUC and fold-level standard deviation are visualized for each model.
+
+<p align="center">
+  <img src="Results/Plots/cross_validation_roc_auc.png" width="500">
 </p>
 
 ### Confusion Matrices
 
-Confusion matrices are generated from the out-of-fold classifications for the Logistic Regression models.
+Confusion matrices are generated from out-of-fold predictions for the Logistic Regression models.
 
 <p align="center">
   <img src="Results/Plots/confusion_matrix_LogReg_Gene.png" width="400">
   <img src="Results/Plots/confusion_matrix_LogReg_miRNA.png" width="400">
 </p>
 
+These visualizations provide complementary views of model discrimination and classification behaviour.
+
 ---
 
-## Out-of-Fold Predictions
+## Notebook 05 — Model Interpretation
 
-Out-of-fold predictions are generated for all four final model configurations.
+The fifth notebook examines the stability and contribution of features used by the final models.
 
-For every sample, the stored predictions include:
+Rather than interpreting a single fitted model, feature information recorded across the five cross-validation folds is used.
 
-* True class
-* Predicted class
-* Predicted PMF probability
+Two complementary quantities are considered:
 
-These predictions are generated using stratified cross-validation and are saved for downstream evaluation.
+* **Selection frequency** — how often a feature was selected across the five folds
+* **Model importance** — the magnitude of the feature's contribution when selected
 
-The resulting files are:
+A feature selected in at least four of the five folds is considered a **stable feature** for the purposes of this analysis.
+
+### Logistic Regression
+
+For Logistic Regression, the signed coefficient is retained to preserve its direction, while the absolute coefficient magnitude is used to rank feature importance.
+
+### Random Forest
+
+For Random Forest, the model-provided non-negative feature importance is used directly.
+
+### Feature Stability
+
+The analysis identifies features that are repeatedly selected across different training subsets.
+
+The top stable features are visualized separately for each dataset and model.
+
+<p align="center">
+  <img src="Results/Plots/top_features_LogReg_Gene.png" width="450">
+  <img src="Results/Plots/top_features_RF_Gene.png" width="450">
+</p>
+
+<p align="center">
+  <img src="Results/Plots/top_features_LogReg_miRNA.png" width="450">
+  <img src="Results/Plots/top_features_RF_miRNA.png" width="450">
+</p>
+
+Agreement between Logistic Regression and Random Forest is also examined by identifying features that are considered stable by both approaches.
+
+This analysis is intended to assess **model-level feature stability**, not biological significance.
+
+The identified features should therefore be interpreted as predictors used by the models rather than validated biomarkers or mechanistically important molecular features.
+
+---
+
+## Key Results
+
+The complete workflow produced several notable modelling observations.
+
+### Dataset
+
+The analysis used:
 
 ```text
-Results/Tables/OOF_Predictions/
-├── LogReg_Gene_oof_predictions.csv
-├── RF_Gene_oof_predictions.csv
-├── LogReg_miRNA_oof_predictions.csv
-└── RF_miRNA_oof_predictions.csv
+73 samples
+42 PMF
+31 Control
 ```
 
-Using out-of-fold predictions ensures that downstream ROC curves and confusion matrices are based on held-out predictions rather than predictions from models trained on the same samples.
-
----
-
-## Feature Importance
-
-Feature importance is recorded independently for each cross-validation fold.
-
-For Logistic Regression, the fitted model coefficients are recorded.
-
-For Random Forest, the fitted feature importances are recorded.
-
-The feature-selection step is also fitted independently within each fold, meaning that the recorded features represent the features actually selected during that fold's training process.
-
-The resulting table is saved to:
+with:
 
 ```text
-Results/Tables/Feature_Importance/Feature_Importance_By_Fold.csv
+49,386 gene-expression features
+20,212 miRNA features
 ```
 
-This allows feature selection and model importance to be examined as a modelling property without claiming that individual molecular features constitute validated biomarkers.
+### Model Performance
+
+Gene-expression models achieved perfect cross-validation performance under the selected feature configurations.
+
+miRNA Logistic Regression also achieved perfect mean performance, while miRNA Random Forest produced a lower mean ROC-AUC of approximately `0.985` and F1 score of approximately `0.929`.
+
+### Feature Selection
+
+The selected feature counts differed between models:
+
+```text
+Gene + Logistic Regression → 50
+Gene + Random Forest       → 25
+
+miRNA + Logistic Regression → 1000
+miRNA + Random Forest       → 250
+```
+
+This reflects differences in the predictive structure of the two molecular datasets and the behaviour of the two modelling approaches.
+
+### Feature Stability
+
+Feature importance was recorded independently within each cross-validation fold.
+
+Features repeatedly selected across folds were used to identify stable predictors and compare feature agreement between Logistic Regression and Random Forest.
+
+This provides a more robust model-level interpretation than ranking features from a single fitted model.
 
 ---
 
-## Limitations
+## Important Limitations
 
-This project is intentionally a machine-learning exercise rather than a biological or clinical study.
-
-Several limitations are therefore important.
+The strong cross-validation results should be interpreted cautiously.
 
 ### Small Sample Size
 
-Only 73 samples are available.
+The analysis contains only 73 samples.
 
-Even with cross-validation, performance estimates from such a small cohort can have substantial uncertainty.
+Although stratified cross-validation provides a more efficient estimate than a single train/test split, performance estimates can still be sensitive to the particular samples available.
 
 ### High-Dimensional Feature Space
 
-The number of molecular features is orders of magnitude larger than the number of samples.
+The number of molecular features greatly exceeds the number of samples.
 
-Although feature selection is used, this remains a difficult modelling regime.
+This creates a high risk of overfitting and makes feature selection an essential part of the modelling workflow.
 
-### Dataset-Specific Signal
+### Potential Confounding
 
-The extremely high performance observed for several models may reflect characteristics specific to this dataset.
+Several sample characteristics are strongly associated with the PMF/control label.
 
-In particular, the strong association between disease labels and metadata variables such as cell type, tissue, and JAK2 V617F status indicates that the classification task contains substantial biological and experimental structure.
+In particular, tissue and cell type show substantial group imbalance.
 
-### No External Validation
+Consequently, molecular classifiers may capture differences associated with sample composition or experimental characteristics rather than disease status alone.
 
-The models are evaluated within the available GSE53482 cohort.
+### No Independent Validation Cohort
 
-No independent external dataset is used to estimate generalization performance.
+The models are evaluated only within the available GSE53482 cohort.
+
+There is no independent external cohort in this project.
+
+Therefore, the observed performance should be interpreted as **within-cohort predictive performance**, not as evidence of clinical generalizability.
 
 ### No Biological Interpretation
 
-The project deliberately does not perform:
+The project intentionally does not perform:
 
-* Differential expression analysis
-* Pathway enrichment
+* Pathway analysis
 * Gene ontology analysis
+* Functional enrichment
 * Biomarker validation
-* Biological mechanism investigation
-* Clinical prediction assessment
+* Mechanistic interpretation
+* Literature-based validation of selected features
 
-Feature importance is treated as a machine-learning output rather than evidence of biological causality or clinical relevance.
-
----
-
-## Reproducibility
-
-The project is organized as a sequence of Jupyter notebooks, with reusable functions stored in the `Src/` directory.
-
-The notebooks should be executed in numerical order:
-
-```text
-01 → 02 → 03 → 04 → 05
-```
-
-Each stage produces files consumed by subsequent stages.
-
-The general workflow is:
-
-```text
-Raw GEO data
-      │
-      ▼
-01 Data preprocessing
-      │
-      ▼
-Processed expression matrices
-      │
-      ▼
-02 Metadata processing
-      │
-      ▼
-Aligned expression + labels
-      │
-      ▼
-03 Model training
-      │
-      ▼
-CV results + OOF predictions
-      │
-      ▼
-04 Model evaluation
-      │
-      ▼
-Figures and evaluation outputs
-      │
-      ▼
-05 Final analysis / project outputs
-```
-
-A fixed random seed is used for cross-validation:
-
-```text
-random_state = 42
-```
-
-This makes the fold assignment reproducible.
+The identified features are treated strictly as **model predictors**.
 
 ---
 
 ## Outputs
 
-### Processed Data
-
-* `Data/Processed/gene_expression.csv` → Cleaned gene-expression matrix
-* `Data/Processed/mirna_expression.csv` → Cleaned miRNA-expression matrix
-* `Data/Processed/gene_expression_aligned.csv` → Gene-expression matrix aligned to metadata
-* `Data/Processed/mirna_expression_aligned.csv` → miRNA-expression matrix aligned to metadata
-* `Data/Processed/gene_metadata.csv` → Parsed and labelled gene-expression metadata
-* `Data/Processed/mirna_metadata.csv` → Parsed and labelled miRNA metadata
-
 ### Cross-Validation Results
 
-* `Results/Tables/Cross_Validation/Cross_Validation_Results.csv` → Final model performance and selected feature counts
+```text
+Results/Tables/Cross_Validation/Cross_Validation_Results.csv
+```
+
+Contains the final cross-validation performance for all dataset/model combinations, including:
+
+* ROC-AUC
+* ROC-AUC standard deviation
+* Accuracy
+* Accuracy standard deviation
+* Precision
+* Recall
+* F1 score
+* Selected feature count
 
 ### Out-of-Fold Predictions
 
-* `Results/Tables/OOF_Predictions/LogReg_Gene_oof_predictions.csv`
-* `Results/Tables/OOF_Predictions/RF_Gene_oof_predictions.csv`
-* `Results/Tables/OOF_Predictions/LogReg_miRNA_oof_predictions.csv`
-* `Results/Tables/OOF_Predictions/RF_miRNA_oof_predictions.csv`
+```text
+Results/Tables/OOF_Predictions/
+```
+
+Contains out-of-fold predictions for:
+
+* Logistic Regression — Gene
+* Random Forest — Gene
+* Logistic Regression — miRNA
+* Random Forest — miRNA
+
+Each file contains:
+
+```text
+y_true
+y_pred
+y_prob
+```
 
 ### Feature Importance
 
-* `Results/Tables/Feature_Importance/Feature_Importance_By_Fold.csv` → Fold-level selected features and model importance values
+```text
+Results/Tables/Feature_Importance/Feature_Importance_By_Fold.csv
+```
+
+Contains fold-level feature-selection and model-importance information.
+
+This table supports the feature-stability analysis performed in Notebook 05.
 
 ### Figures
 
-* `Results/Plots/cross_validation_roc_auc.png` → Cross-validation ROC-AUC comparison
-* `Results/Plots/roc_curves_oof.png` → ROC curves from out-of-fold predictions
-* `Results/Plots/confusion_matrix_LogReg_Gene.png` → Gene-expression Logistic Regression confusion matrix
-* `Results/Plots/confusion_matrix_LogReg_miRNA.png` → miRNA Logistic Regression confusion matrix
-
----
-
-## Notebooks
-
-### Notebook 01 — Data Preprocessing
-
-Prepares the raw GEO expression matrices for downstream analysis.
-
-The notebook handles the initial processing and generation of cleaned gene-expression and miRNA-expression datasets.
-
-### Notebook 02 — Metadata Processing & Label Construction
-
-Extracts sample-level metadata from the original GEO files, constructs the PMF/control labels, examines potential confounding variables, and aligns metadata with the expression matrices.
-
-### Notebook 03 — Model Training & Comparison
-
-Evaluates Logistic Regression and Random Forest models across multiple feature-set sizes using stratified 5-fold cross-validation.
-
-Feature selection is performed within the modelling pipeline to prevent validation-fold information from influencing feature selection.
-
-### Notebook 04 — Model Evaluation & Visualization
-
-Loads the model-training results and out-of-fold predictions and generates:
-
-* ROC-AUC comparisons
-* ROC curves
-* Confusion matrices
-
-### Notebook 05
-
-Provides the final stage of the analysis and project outputs.
-
----
-
-## Project Identity
-
-This repository is intentionally positioned as a **bioinformatics machine-learning playground**.
-
-The purpose is not to claim a new biological discovery or develop a clinically deployable PMF classifier.
-
-Instead, the project demonstrates the process of taking a real molecular dataset and turning it into a structured machine-learning experiment.
-
-The main learning objectives are:
-
-1. Working with public GEO molecular datasets
-2. Extracting and validating sample metadata
-3. Building supervised classification labels
-4. Handling high-dimensional molecular feature spaces
-5. Understanding information leakage
-6. Designing leakage-aware scikit-learn pipelines
-7. Performing stratified cross-validation
-8. Comparing different machine-learning models
-9. Generating out-of-fold predictions
-10. Evaluating models using multiple performance metrics
-11. Recording fold-level feature selection and importance
-12. Communicating machine-learning results responsibly
-
-The project is therefore best understood as:
-
 ```text
-Real biological dataset
-        +
-Machine-learning experimentation
-        +
-Reproducible workflow design
-        +
-Critical evaluation of model performance
+Results/Plots/
 ```
 
-rather than as a biological discovery pipeline.
+Contains:
+
+* `cross_validation_roc_auc.png`
+* `roc_curves_oof.png`
+* `confusion_matrix_LogReg_Gene.png`
+* `confusion_matrix_LogReg_miRNA.png`
+* `top_features_LogReg_Gene.png`
+* `top_features_RF_Gene.png`
+* `top_features_LogReg_miRNA.png`
+* `top_features_RF_miRNA.png`
 
 ---
 
-## Why This Project?
+## Reproducibility
 
-High-dimensional biological datasets provide an interesting environment for learning machine learning because the modelling problems are rarely just about fitting a classifier.
+The project is organized so that the notebooks can be executed sequentially.
 
-They require decisions about:
+```text
+01 → 02 → 03 → 04 → 05
+```
 
-* What constitutes the target?
-* How should samples and metadata be aligned?
-* How should thousands of features be handled?
-* Where should preprocessing occur?
-* How can feature-selection leakage be avoided?
-* How should model performance be estimated with few samples?
-* How should very strong model performance be interpreted?
-* What conclusions are justified by the available data?
+Notebook 01 generates the processed expression matrices.
 
-This project uses those challenges as the main learning environment.
+Notebook 02 extracts and aligns the sample metadata and classification labels.
 
-The resulting workflow is deliberately modest in its scientific claims but explicit in its computational methodology.
+Notebook 03 trains the models, performs cross-validation, selects feature-set sizes, generates out-of-fold predictions, and records fold-level feature importance.
 
----
+Notebook 04 evaluates the resulting predictions and generates model-performance visualizations.
 
-## Future Extensions
+Notebook 05 analyses feature stability and model-level feature importance.
 
-Possible extensions include:
+The Python environment should be created from the project environment specification:
 
-* Nested cross-validation for feature-count/model selection
-* External validation using an independent PMF dataset
-* Hyperparameter optimization
-* Comparison with additional classifiers
-* Repeated stratified cross-validation
-* Feature-selection stability analysis
-* Calibration analysis
-* Precision-recall curves
-* Learning curves
-* Model performance confidence intervals
-* Multimodal gene + miRNA modelling
-* More rigorous assessment of potential confounding
+```bash
+conda env create -f environment.yaml
+conda activate <environment-name>
+```
 
-These extensions would improve the machine-learning methodology without changing the primary purpose of the project.
+The notebooks should then be executed in order.
 
 ---
-
-## Project Goal
-
-The goal of **PMF Molecular ML** is to demonstrate a reproducible and leakage-aware machine-learning workflow using real high-dimensional molecular data.
-
-The project emphasizes:
-
-1. Reproducible data preparation
-2. Metadata and sample validation
-3. Explicit target construction
-4. Awareness of biological and technical confounding
-5. Leakage-aware feature selection
-6. Stratified cross-validation
-7. Comparison of complementary classifiers
-8. Out-of-fold model evaluation
-9. Transparent reporting of limitations
-10. Responsible interpretation of machine-learning performance
-
-The central lesson of the project is simple:
-
-> **A model achieving excellent performance on a biological dataset is not automatically evidence of a biologically meaningful or clinically generalizable predictor.**
-
-The value of this project lies in demonstrating the workflow, the modelling decisions, and the reasoning required to evaluate such results critically.
