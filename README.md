@@ -135,11 +135,11 @@ PMF-Molecular-ML/
 │   └── Model_Utility.py
 │
 ├── Notebooks/
-│   ├── 01_*.ipynb
+│   ├── 01_Data_Loading.ipynb
 │   ├── 02_Metadata_Processing_&_Label_Construction.ipynb
 │   ├── 03_Model_Training_&_Comparison.ipynb
 │   ├── 04_Model_Evaluation_&_Visualization.ipynb
-│   └── 05_*.ipynb
+│   └── 05_Model_Interpretation.ipynb
 │
 ├── .gitignore
 ├── README.md
