@@ -1,0 +1,5 @@
+Dataset,Model,ROC_AUC_mean,ROC_AUC_std,Accuracy_mean,Accuracy_std,Precision_mean,Recall_mean,F1_mean,k_features
+Gene,Logistic Regression,1.0,0.0,1.0,0.0,1.0,1.0,1.0,50
+Gene,Random Forest,1.0,0.0,1.0,0.0,1.0,1.0,1.0,25
+miRNA,Logistic Regression,1.0,0.0,1.0,0.0,1.0,1.0,1.0,1000
+miRNA,Random Forest,0.9851851851851852,0.018144368465060554,0.9190476190476191,0.07760590014271755,0.9527777777777778,0.9083333333333332,0.9291503267973857,250
