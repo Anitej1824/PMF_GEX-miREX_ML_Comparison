@@ -5,9 +5,6 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 
-# Data (VERY IMPORTANT)
-Data/Processed/
-
 # Environment
 .env
 *.env
